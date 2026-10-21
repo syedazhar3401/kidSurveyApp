@@ -5,23 +5,34 @@ import QuestionCard from './components/QuestionCard';
 import CelebrationScreen from './components/CelebrationScreen';
 import AdminDashboard from './components/AdminDashboard';
 import { SURVEY_QUESTIONS } from './data/surveyConfig';
-import { getResponses, saveResponse, deleteResponse, clearAllResponses } from './utils/storage';
+import {
+  getLocalResponses,
+  fetchResponses,
+  saveResponse,
+  deleteResponse,
+  clearAllResponses,
+} from './utils/storage';
 
 export default function App() {
   const [view, setView] = useState('name'); // 'name' | 'question' | 'celebration' | 'admin'
   const [childName, setChildName] = useState('');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentAnswers, setCurrentAnswers] = useState({});
-  const [responses, setResponses] = useState([]);
+  const [responses, setResponses] = useState(getLocalResponses());
   const [lastSavedRecord, setLastSavedRecord] = useState(null);
 
-  // Load responses on initial mount
+  // Load responses from Supabase or local storage on initial mount
   useEffect(() => {
-    setResponses(getResponses());
+    async function loadData() {
+      const records = await fetchResponses();
+      setResponses(records);
+    }
+    loadData();
   }, []);
 
-  const refreshResponses = () => {
-    setResponses(getResponses());
+  const refreshResponses = async () => {
+    const records = await fetchResponses();
+    setResponses(records);
   };
 
   const handleStartSurvey = (name) => {
@@ -31,7 +42,7 @@ export default function App() {
     setView('question');
   };
 
-  const handleSelectOption = (option) => {
+  const handleSelectOption = async (option) => {
     const currentQuestion = SURVEY_QUESTIONS[currentQuestionIndex];
     const updatedAnswers = {
       ...currentAnswers,
@@ -46,9 +57,9 @@ export default function App() {
     if (currentQuestionIndex < SURVEY_QUESTIONS.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     } else {
-      // Completed last question -> save & celebrate!
+      // Completed last question -> save to cloud & local & celebrate!
       try {
-        const saved = saveResponse(childName, updatedAnswers);
+        const saved = await saveResponse(childName, updatedAnswers);
         setLastSavedRecord(saved);
         refreshResponses();
         setView('celebration');
@@ -75,13 +86,13 @@ export default function App() {
     setView('name');
   };
 
-  const handleDeleteResponse = (id) => {
-    const updated = deleteResponse(id);
+  const handleDeleteResponse = async (id) => {
+    const updated = await deleteResponse(id);
     setResponses(updated);
   };
 
-  const handleClearAll = () => {
-    const updated = clearAllResponses();
+  const handleClearAll = async () => {
+    const updated = await clearAllResponses();
     setResponses(updated);
   };
 
@@ -120,7 +131,12 @@ export default function App() {
         <Header
           responseCount={responses.length}
           currentView={view}
-          onOpenAdmin={() => setView((prev) => (prev === 'admin' ? 'name' : 'admin'))}
+          onOpenAdmin={() => {
+            if (view !== 'admin') {
+              refreshResponses();
+            }
+            setView((prev) => (prev === 'admin' ? 'name' : 'admin'));
+          }}
         />
       </div>
 

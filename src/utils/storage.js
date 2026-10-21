@@ -1,10 +1,12 @@
+import { supabase, isSupabaseConfigured } from './supabaseClient';
+
 const STORAGE_KEY = 'little_techies_survey_responses_v1';
 
 /**
- * Get all saved survey responses from localStorage
+ * Get all saved survey responses from local cache
  * @returns {Array} List of responses, sorted newest first
  */
-export function getResponses() {
+export function getLocalResponses() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -17,61 +19,158 @@ export function getResponses() {
 }
 
 /**
- * Save a new survey response
+ * Save responses to local cache
+ */
+function setLocalResponses(records) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  } catch (error) {
+    console.error('Failed to write to localStorage:', error);
+  }
+}
+
+/**
+ * Fetch all survey responses (from Supabase if configured, otherwise localStorage)
+ * @returns {Promise<Array>} List of responses, sorted newest first
+ */
+export async function fetchResponses() {
+  const localList = getLocalResponses();
+
+  if (!isSupabaseConfigured()) {
+    return localList;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('survey_responses')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('Supabase fetch failed, falling back to local storage:', error.message);
+      return localList;
+    }
+
+    if (data) {
+      // Map database row snake_case back to app record format
+      const formatted = data.map((row) => ({
+        id: row.id,
+        childName: row.child_name,
+        answers: row.answers,
+        timestamp: row.created_at,
+        formattedTime: row.formatted_time,
+        formattedDate: row.formatted_date,
+      }));
+
+      // Update local storage cache
+      setLocalResponses(formatted);
+      return formatted;
+    }
+    return localList;
+  } catch (err) {
+    console.warn('Network error fetching from Supabase, using local cache:', err);
+    return localList;
+  }
+}
+
+/**
+ * Save a new survey response (syncs to Supabase and caches locally)
  * @param {string} childName
- * @param {object} answers - e.g. { q1: { id, label, emoji }, ... }
- * @returns {object} The newly created record
+ * @param {object} answers
+ * @returns {Promise<object>} The newly created record
  */
-export function saveResponse(childName, answers) {
-  try {
-    const records = getResponses();
-    const newRecord = {
-      id: 'resp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-      childName: childName.trim(),
-      answers,
-      timestamp: new Date().toISOString(),
-      formattedTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      formattedDate: new Date().toLocaleDateString(),
-    };
-    
-    // Add newest at the top
-    const updated = [newRecord, ...records];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    return newRecord;
-  } catch (error) {
-    console.error('Failed to save to localStorage:', error);
-    throw error;
+export async function saveResponse(childName, answers) {
+  const now = new Date();
+  const newRecord = {
+    id: 'resp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+    childName: childName.trim(),
+    answers,
+    timestamp: now.toISOString(),
+    formattedTime: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    formattedDate: now.toLocaleDateString(),
+  };
+
+  // 1. Immediately cache locally for offline speed
+  const localList = getLocalResponses();
+  const updatedLocal = [newRecord, ...localList];
+  setLocalResponses(updatedLocal);
+
+  // 2. If Supabase is connected, push to cloud in background
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from('survey_responses').insert([
+        {
+          id: newRecord.id,
+          child_name: newRecord.childName,
+          answers: newRecord.answers,
+          created_at: newRecord.timestamp,
+          formatted_time: newRecord.formattedTime,
+          formatted_date: newRecord.formattedDate,
+        },
+      ]);
+      if (error) {
+        console.warn('Supabase cloud insert warning (saved locally):', error.message);
+      }
+    } catch (err) {
+      console.warn('Supabase cloud network error (saved locally):', err);
+    }
   }
+
+  return newRecord;
 }
 
 /**
- * Delete a specific response by its ID
+ * Delete a specific response by its ID (from cloud and local)
  * @param {string} id
- * @returns {Array} Updated list of responses
+ * @returns {Promise<Array>} Updated list of responses
  */
-export function deleteResponse(id) {
-  try {
-    const records = getResponses();
-    const updated = records.filter(record => record.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    return updated;
-  } catch (error) {
-    console.error('Failed to delete record:', error);
-    return getResponses();
+export async function deleteResponse(id) {
+  // Update local cache immediately
+  const localList = getLocalResponses();
+  const updatedLocal = localList.filter((r) => r.id !== id);
+  setLocalResponses(updatedLocal);
+
+  // Delete from Supabase if configured
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase
+        .from('survey_responses')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.warn('Supabase delete warning:', error.message);
+      }
+    } catch (err) {
+      console.warn('Supabase delete network error:', err);
+    }
   }
+
+  return updatedLocal;
 }
 
 /**
- * Clear all responses (useful for starting fresh on event day)
+ * Clear all responses
  */
-export function clearAllResponses() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-    return [];
-  } catch (error) {
-    console.error('Failed to clear responses:', error);
-    return [];
+export async function clearAllResponses() {
+  setLocalResponses([]);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase
+        .from('survey_responses')
+        .delete()
+        .neq('id', '___non_existent___');
+
+      if (error) {
+        console.warn('Supabase clear warning:', error.message);
+      }
+    } catch (err) {
+      console.warn('Supabase clear network error:', err);
+    }
   }
+
+  return [];
 }
 
 /**
@@ -117,7 +216,7 @@ export function exportToCSV(responses) {
   const csvContent = '\uFEFF' + [headers.map(escapeCSV).join(','), ...rows].join('\r\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  
+
   const link = document.createElement('a');
   link.setAttribute('href', url);
   const dateStr = new Date().toISOString().slice(0, 10);
@@ -152,6 +251,6 @@ export function loadMockResponses() {
     formattedDate: new Date().toLocaleDateString(),
   }));
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(mockList));
+  setLocalResponses(mockList);
   return mockList;
 }
