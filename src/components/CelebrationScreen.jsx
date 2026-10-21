@@ -5,7 +5,7 @@ import { RotateCcw, CheckCircle2 } from 'lucide-react';
 export default function CelebrationScreen({ childName, lastResponse, onReset }) {
   useEffect(() => {
     // Multi-stage confetti celebration
-    const count = 250;
+    const count = 280;
     const defaults = {
       origin: { y: 0.7 },
       zIndex: 9999,
@@ -19,19 +19,19 @@ export default function CelebrationScreen({ childName, lastResponse, onReset }) 
       });
     }
 
-    fire(0.25, { spread: 30, startVelocity: 60 });
-    fire(0.2, { spread: 65 });
-    fire(0.35, { spread: 110, decay: 0.91, scalar: 0.8 });
-    fire(0.1, { spread: 130, startVelocity: 30, decay: 0.92, scalar: 1.2 });
-    fire(0.1, { spread: 130, startVelocity: 50 });
+    fire(0.25, { spread: 35, startVelocity: 60 });
+    fire(0.2, { spread: 70 });
+    fire(0.35, { spread: 120, decay: 0.91, scalar: 0.8 });
+    fire(0.1, { spread: 140, startVelocity: 35, decay: 0.92, scalar: 1.2 });
+    fire(0.1, { spread: 140, startVelocity: 55 });
   }, []);
 
   return (
-    <div className="w-full max-w-xl mx-auto px-4 py-1">
+    <div className="w-full max-w-xl mx-auto px-4 py-1 animate-card-pop">
       <div className="bg-white/95 backdrop-blur-md rounded-[28px] sm:rounded-[36px] p-6 sm:p-8 text-center border-4 border-white shadow-2xl shadow-indigo-900/20 relative overflow-hidden">
         
         {/* Celebration Star */}
-        <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-tr from-amber-300 via-amber-400 to-yellow-500 rounded-3xl p-1 shadow-lg shadow-amber-300/40 mb-4 flex items-center justify-center transform animate-bounce-slow">
+        <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-tr from-amber-300 via-amber-400 to-yellow-500 rounded-3xl p-1 shadow-lg shadow-amber-300/40 mb-4 flex items-center justify-center transform animate-soft-float">
           <div className="w-full h-full bg-amber-50 rounded-[20px] flex items-center justify-center text-4xl sm:text-5xl select-none">
             🌟
           </div>
@@ -69,7 +69,7 @@ export default function CelebrationScreen({ childName, lastResponse, onReset }) 
         {/* Button to start next survey */}
         <button
           onClick={onReset}
-          className="w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 hover:from-indigo-600 hover:to-sky-600 text-white font-black text-xl sm:text-2xl py-3.5 sm:py-4 px-6 rounded-2xl border-b-6 border-indigo-800 active:border-b-3 shadow-lg shadow-indigo-300 flex items-center justify-center gap-2.5 transition-all duration-150 btn-3d cursor-pointer"
+          className="w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 hover:from-indigo-600 hover:to-sky-600 text-white font-black text-xl sm:text-2xl py-3.5 sm:py-4 px-6 rounded-2xl border-b-6 border-indigo-800 toy-btn cursor-pointer flex items-center justify-center gap-2.5"
         >
           <RotateCcw className="w-6 h-6" />
           <span>Start Next Survey</span>
