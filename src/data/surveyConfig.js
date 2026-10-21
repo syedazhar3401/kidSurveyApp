@@ -1,0 +1,135 @@
+export const APP_CONFIG = {
+  eventName: "Little Techies",
+  organization: "Brainy Bunch Kindergarten",
+  targetParticipants: 35,
+};
+
+export const SURVEY_QUESTIONS = [
+  {
+    id: "q1",
+    questionNumber: 1,
+    title: "Do robots do what we tell them?",
+    subtitle: "Think about how we gave commands to our robot!",
+    options: [
+      {
+        id: "yes",
+        label: "Yes!",
+        emoji: "👍",
+        colorClass: "from-emerald-400 via-emerald-500 to-green-600 border-emerald-700 text-white shadow-emerald-500/30",
+        glowClass: "hover:shadow-emerald-400/50",
+      },
+      {
+        id: "no",
+        label: "No!",
+        emoji: "👎",
+        colorClass: "from-rose-400 via-rose-500 to-red-600 border-rose-700 text-white shadow-rose-500/30",
+        glowClass: "hover:shadow-rose-400/50",
+      },
+      {
+        id: "not_sure",
+        label: "Not sure",
+        emoji: "🤔",
+        colorClass: "from-amber-300 via-amber-400 to-yellow-500 border-amber-600 text-slate-900 shadow-amber-400/30",
+        glowClass: "hover:shadow-amber-400/50",
+      },
+    ],
+  },
+  {
+    id: "q2",
+    questionNumber: 2,
+    title: "Can a computer guess what you draw?",
+    subtitle: "Remember the DoodleNet AI that looked at your drawing?",
+    options: [
+      {
+        id: "yes",
+        label: "Yes!",
+        emoji: "👍",
+        colorClass: "from-emerald-400 via-emerald-500 to-green-600 border-emerald-700 text-white shadow-emerald-500/30",
+        glowClass: "hover:shadow-emerald-400/50",
+      },
+      {
+        id: "no",
+        label: "No!",
+        emoji: "👎",
+        colorClass: "from-rose-400 via-rose-500 to-red-600 border-rose-700 text-white shadow-rose-500/30",
+        glowClass: "hover:shadow-rose-400/50",
+      },
+      {
+        id: "not_sure",
+        label: "Not sure",
+        emoji: "🤔",
+        colorClass: "from-amber-300 via-amber-400 to-yellow-500 border-amber-600 text-slate-900 shadow-amber-400/30",
+        glowClass: "hover:shadow-amber-400/50",
+      },
+    ],
+  },
+  {
+    id: "q3",
+    questionNumber: 3,
+    title: "Do you like learning about computers?",
+    subtitle: "How did you feel about computers today?",
+    options: [
+      {
+        id: "love",
+        label: "Love it!",
+        emoji: "😃",
+        colorClass: "from-teal-400 via-emerald-500 to-green-600 border-emerald-700 text-white shadow-teal-500/30",
+        glowClass: "hover:shadow-teal-400/50",
+      },
+      {
+        id: "okay",
+        label: "It's okay",
+        emoji: "😐",
+        colorClass: "from-amber-300 via-amber-400 to-yellow-500 border-amber-600 text-slate-900 shadow-amber-400/30",
+        glowClass: "hover:shadow-amber-400/50",
+      },
+      {
+        id: "not_really",
+        label: "Not really",
+        emoji: "🙁",
+        colorClass: "from-slate-400 via-slate-500 to-gray-600 border-slate-700 text-white shadow-slate-500/30",
+        glowClass: "hover:shadow-slate-400/50",
+      },
+    ],
+  },
+  {
+    id: "q4",
+    questionNumber: 4,
+    title: "Which booth was your favourite?",
+    subtitle: "Pick the activity you enjoyed the most!",
+    options: [
+      {
+        id: "booth_1",
+        label: "Shape Robot",
+        sublabel: "Booth 1: Paper Shapes",
+        emoji: "🤖",
+        colorClass: "from-sky-400 via-blue-500 to-indigo-600 border-blue-700 text-white shadow-blue-500/30",
+        glowClass: "hover:shadow-blue-400/50",
+      },
+      {
+        id: "booth_2",
+        label: "Guess My Drawing",
+        sublabel: "Booth 2: AI Doodle",
+        emoji: "🎨",
+        colorClass: "from-purple-400 via-violet-500 to-purple-600 border-purple-700 text-white shadow-purple-500/30",
+        glowClass: "hover:shadow-purple-400/50",
+      },
+      {
+        id: "booth_3",
+        label: "Voice Changer",
+        sublabel: "Booth 3: Funny Sounds",
+        emoji: "🎤",
+        colorClass: "from-pink-400 via-rose-500 to-pink-600 border-pink-700 text-white shadow-pink-500/30",
+        glowClass: "hover:shadow-pink-400/50",
+      },
+      {
+        id: "closing_game",
+        label: "Red Light Game",
+        sublabel: "Closing Activity",
+        emoji: "🚦",
+        colorClass: "from-amber-400 via-orange-500 to-red-500 border-orange-700 text-white shadow-orange-500/30",
+        glowClass: "hover:shadow-orange-400/50",
+      },
+    ],
+  },
+];
