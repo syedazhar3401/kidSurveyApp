@@ -162,14 +162,8 @@ export default function App() {
 
       {/* Footer Branding */}
       <footer className="relative z-10 w-full flex justify-center pb-2 pt-1 px-4 select-none shrink-0">
-        <div className="bg-white/80 backdrop-blur-md px-4 py-1 rounded-full shadow-xs border border-white/60 text-[11px] sm:text-xs font-black text-indigo-950 flex items-center gap-2">
-          <span>Little Techies</span>
-          <span className="text-pink-500">•</span>
-          <span>Brainy Bunch × U.N.I. MART</span>
-          <span className="text-pink-500">•</span>
-          <span className="text-emerald-700 bg-emerald-100 px-2 py-0.2 rounded-full font-black">
-            100% Offline
-          </span>
+        <div className="bg-white/80 backdrop-blur-md px-4 py-1 rounded-full shadow-xs border border-white/60 text-[11px] sm:text-xs font-black text-indigo-950 flex items-center justify-center">
+          <span>Group 1 TCS</span>
         </div>
       </footer>
     </div>
